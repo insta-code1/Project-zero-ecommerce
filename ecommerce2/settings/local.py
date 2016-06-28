@@ -61,6 +61,8 @@ INSTALLED_APPS = (
     'newsletter',
     'orders',
     'products',
+    #s3
+    'storages',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -123,20 +125,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_URL = '/static/'
-
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_in_env", "static_root")
-    
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static_in_pro", "our_static"),
-    #os.path.join(BASE_DIR, "static_in_env"),
-    #'/var/www/static/',
-)
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static_in_env", "media_root")
-
-
 
 #Crispy FORM TAGs SETTINGS
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
@@ -154,3 +142,26 @@ BRAINTREE_PUBLIC = "9mxp8wtbn86hs5dv"
 BRAINTREE_PRIVATE = "ca11fb02d5be484eb9b4d8d3ee2040a2"
 BRAINTREE_MERCHAND_ID = "h5ckts3m88wq3pdc"
 BRAINTREE_ENVIORMENT = "Sandbox"
+
+AWS_S3_HOST = 's3-eu-west-1.amazonaws.com'
+AWS_STORAGE_BUCKET_NAME = 'ecommerceinsta'
+AWS_ACCESS_KEY_ID = 'AKIAI562VTH7OUWFCSCQ'
+AWS_SECRET_ACCESS_KEY = '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'
+
+# Tell django-storages that when coming up with the URL for an item in S3 storage, keep
+# it simple - just use this domain plus the path. (If this isn't set, things get complicated).
+# This controls how the `static` template tag from `staticfiles` gets expanded, if you're using it.
+# We also use it in the next setting.
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+
+# This is used by the `static` template tag from `static`, if you're using that. Or if anything else
+# refers directly to STATIC_URL. So it's safest to always set it.
+
+
+STATICFILES_LOCATION = 'static'
+STATICFILES_STORAGE = 'custom_storages.StaticStorage'
+STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
+
+MEDIAFILES_LOCATION = 'media'
+MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
